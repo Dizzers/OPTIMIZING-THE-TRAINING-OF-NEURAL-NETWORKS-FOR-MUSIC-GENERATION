@@ -12,7 +12,7 @@ def count_notes_in_midi(midi_path):
 
         for track in midi.tracks:
             for msg in track:
-                # Подсчитываем ноты (note_on сообщения с velocity > 0)
+                
                 if msg.type == 'note_on' and msg.velocity > 0:
                     note_count += 1
 
@@ -25,7 +25,7 @@ def count_notes_in_midi(midi_path):
 def analyze_midi_directory(directory_path):
     """Анализирует директорию с MIDI-файлами"""
     try:
-        # Преобразуем путь в абсолютный
+       
         directory = Path(directory_path).expanduser().resolve()
 
         print(f"Ищем MIDI-файлы в: {directory}")
@@ -36,7 +36,7 @@ def analyze_midi_directory(directory_path):
             print("Проверьте правильность пути и убедитесь, что диск подключен.")
             return
 
-        # Рекурсивно ищем MIDI-файлы
+        
         midi_files = list(directory.rglob("*.mid")) + list(directory.rglob("*.midi"))
 
         if not midi_files:
@@ -49,7 +49,7 @@ def analyze_midi_directory(directory_path):
         print(f"Найдено MIDI-файлов: {len(midi_files)}")
         print("-" * 80)
 
-        # Группируем файлы по папкам для лучшей визуализации
+        
         folders_dict = {}
         for midi_file in midi_files:
             folder = str(midi_file.parent.relative_to(directory))
@@ -63,7 +63,7 @@ def analyze_midi_directory(directory_path):
         total_notes = 0
         file_info = []
 
-        # Обрабатываем файлы по папкам
+        
         for folder, files in folders_dict.items():
             print(f"\nПапка: {folder}")
             print(f"Файлов в папке: {len(files)}")
@@ -75,7 +75,7 @@ def analyze_midi_directory(directory_path):
                 folder_notes += notes
                 file_info.append((str(midi_file.relative_to(directory)), notes))
 
-                # Показываем только первые несколько файлов в каждой папке для краткости
+                
                 if i <= 3:
                     print(f"  {i}. {midi_file.name}: {notes} нот")
                 elif i == 4 and len(files) > 3:
@@ -88,12 +88,12 @@ def analyze_midi_directory(directory_path):
         print(f"Количество MIDI-файлов: {len(midi_files)}")
         print(f"Общее количество нот: {total_notes}")
 
-        # Дополнительная статистика
+        
         if len(midi_files) > 0:
             avg_notes = total_notes / len(midi_files)
             print(f"Среднее количество нот на файл: {avg_notes:.1f}")
 
-            # Находим файлы с максимальным и минимальным количеством нот
+            
             if file_info:
                 max_file = max(file_info, key=lambda x: x[1])
                 min_file = min(file_info, key=lambda x: x[1])
@@ -103,7 +103,7 @@ def analyze_midi_directory(directory_path):
                 print(f"\nФайл с наименьшим количеством нот:")
                 print(f"  {min_file[0]}: {min_file[1]} нот")
 
-                # Статистика по папкам
+                
                 print(f"\nСтатистика по папкам:")
                 folder_stats = {}
                 for file_path, notes in file_info:
@@ -136,7 +136,7 @@ def get_directory_stats(directory_path):
         if not directory.exists():
             return None
 
-        # Рекурсивно ищем MIDI-файлы
+        
         midi_files = list(directory.rglob("*.mid")) + list(directory.rglob("*.midi"))
 
         if not midi_files:
@@ -155,22 +155,20 @@ def get_directory_stats(directory_path):
 
 
 if __name__ == "__main__":
-    # Пробуем несколько способов указания пути
+    
     paths_to_try = []
 
-    # 1. Путь от пользователя
+    
     user_input = input("Введите путь к директории с MIDI-файлами (нажмите Enter для текущей директории): ").strip()
 
     if user_input:
         paths_to_try.append(user_input)
 
-    # 2. Путь из вашего примера (может потребоваться на Mac)
+   
     paths_to_try.append("/Volumes/T7/Университет/PythonProject/TISPIS/archive")
 
-    # 3. Текущая директория
     paths_to_try.append(".")
 
-    # 4. Абсолютный путь с тильдой
     paths_to_try.append("~/Desktop")
 
     for path in paths_to_try:
@@ -185,8 +183,7 @@ if __name__ == "__main__":
             print(f"  Найдено: {stats[0]} MIDI-файлов, {stats[1]} нот")
             break
 
-    # Запускаем полный анализ
+
     analyze_midi_directory(user_input if user_input else ".")
 
-    # Для автоматического использования с вашим путем, раскомментируйте следующую строку:
     analyze_midi_directory("/Volumes/T7/Университет/PythonProject/TISPIS/archive")
