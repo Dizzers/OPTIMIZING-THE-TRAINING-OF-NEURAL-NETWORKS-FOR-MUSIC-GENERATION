@@ -1,6 +1,3 @@
-# =========================================================
-# Импорты
-# =========================================================
 import os
 import glob
 import numpy as np
@@ -16,9 +13,6 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# =========================================================
-# Настройки
-# =========================================================
 BATCH_SIZE = 32
 EPOCHS = 100
 LR = 1e-3
@@ -35,9 +29,6 @@ os.makedirs(CHECKPOINT_DIR, exist_ok=True)
 
 pl.seed_everything(42)
 
-# =========================================================
-# MIDIDataset — загрузка MIDI файлов
-# =========================================================
 class MIDIDataset(Dataset):
     def __init__(self, root_dir, seq_len=SEQ_LEN, min_note=MIN_NOTE, max_note=MAX_NOTE):
         self.files = glob.glob(os.path.join(root_dir, "**/*.mid"), recursive=True)
@@ -113,9 +104,7 @@ class BCELossWrapper(nn.Module):
 
     def forward(self, logits, targets):
         return self.loss(logits, targets)
-# =========================================================
-# Модель с метриками
-# =======================================================
+
 class SmallMusicModel(pl.LightningModule):
     def __init__(self, n_notes=MAX_NOTE-MIN_NOTE+1, hidden=128, lr=LR, optimizer_name="Adam"):
         super().__init__()
@@ -133,7 +122,7 @@ class SmallMusicModel(pl.LightningModule):
         self.loss_fn = FocalLoss(alpha=0.25, gamma=2.0)
 
     def forward(self, x):
-        x = x.transpose(1, 2)  # [B, T, N] -> [B, N, T]
+        x = x.transpose(1, 2)
         x = self.conv(x)
         x = x.transpose(1, 2)
         out, _ = self.gru(x)
@@ -144,22 +133,18 @@ class SmallMusicModel(pl.LightningModule):
         threshold = 0.2
         preds = (probs > threshold).float()
 
-        # Тензоры в numpy
         y_true = targets.cpu().numpy()
         y_pred = preds.cpu().numpy()
 
-        # === ВАЖНО: расплющиваем batch и time ===
-        y_true = y_true.reshape(-1, y_true.shape[-1])  # [B*T, N]
-        y_pred = y_pred.reshape(-1, y_pred.shape[-1])  # [B*T, N]
+        y_true = y_true.reshape(-1, y_true.shape[-1])
+        y_pred = y_pred.reshape(-1, y_pred.shape[-1]) 
 
-        # === Метрики multi-label ===
         acc = (y_true == y_pred).mean()
 
         f1 = f1_score(y_true, y_pred, average="macro", zero_division=0)
         prec = precision_score(y_true, y_pred, average="macro", zero_division=0)
         rec = recall_score(y_true, y_pred, average="macro", zero_division=0)
 
-        # BCE loss
         bce_loss = self.loss_fn(logits, targets).item()
         perplexity = np.exp(bce_loss)
 
@@ -179,7 +164,7 @@ class SmallMusicModel(pl.LightningModule):
             "train_precision": prec,
             "train_recall": rec,
             "train_perplexity": perp
-        }, prog_bar=True, on_step=False, on_epoch=True)  # <-- важно: on_step=False
+        }, prog_bar=True, on_step=False, on_epoch=True) 
 
         return loss
 
@@ -212,9 +197,6 @@ class SmallMusicModel(pl.LightningModule):
         else:
             raise ValueError(f"Неизвестный оптимизатор: {name}")
 
-# =========================================================
-# Тренировка на одном оптимизаторе
-# =========================================================
 def train_once(opt_name, train_loader, val_loader):
     logger = CSVLogger("logs", name=f"exp_{opt_name}")
     checkpoint = ModelCheckpoint(
