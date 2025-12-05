@@ -2,50 +2,56 @@
 course work
 # Music Generation with Neural Networks
 
-## Описание проекта
+## Project Description
 
-Этот проект посвящен задаче генерации музыки с использованием нейронных сетей. Модель обучается предсказывать следующее состояние музыкальной матрицы (piano-roll) на основе предыдущих временных шагов. Задача представляет собой многомерную многометочную бинарную классификацию, где необходимо определить, какие ноты будут активны на следующем временном шаге.
+This project focuses on the task of music generation using neural networks. The model learns to predict the next state of a music matrix (piano-roll) based on previous time steps. The task represents a multidimensional multi-label binary classification problem, where the goal is to determine which notes will be active at the next time step.
 
-## Ключевые особенности
+## Key Features
 
-- **Генерация музыкальных последовательностей**: Модель генерирует полифоническую музыку в формате MIDI
-- **Архитектура**: Комбинированная нейросетевая архитектура на основе сверточных (Conv1D) и рекуррентных слоёв (GRU)
-- **Оптимизация обучения**: Основной фокус работы - исследование различных оптимизаторов и функций потерь для преодоления проблем разреженности данных
+- **Musical Sequence Generation**: The model generates polyphonic music in MIDI format
+- **Architecture**: Combined neural network architecture based on convolutional (Conv1D) and recurrent layers (GRU)
+- **Training Optimization**: The main focus of this work is investigating different optimizers and loss functions to overcome data sparsity issues
 
-## Структура данных
+## Data Structure
 
-### Формат piano-roll
-- **Размерность**: T × N (T = 128 временных шагов, N = 84 ноты)
-- **Диапазон нот**: MIDI-ноты с 24 по 108
-- **Тип данных**: Бинарная матрица (0/1, где 1 - активная нота)
-- **Разреженность**: Менее 2% активных нот на временном шаге
+### Piano-roll Format
+- **Dimensions**: T × N (T = 128 time steps, N = 84 notes)
+- **Note Range**: MIDI notes from 24 to 108
+- **Data Type**: Binary matrix (0/1, where 1 indicates an active note)
+- **Sparsity**: Less than 2% active notes per time step
 
-### Датасет (archive)
-- **Объем**: 292 MIDI-файла, содержащих примерно 705 тысяч нот
-- **Препроцессинг**:
-  1. Парсинг MIDI-файлов с помощью `pretty_midi`
-  2. Приведение к фиксированной частоте дискретизации
-  3. Извлечение бинарных матриц активности нот
-  4. Обрезка/дополнение до фиксированной длины (128 шагов)
-  5. Нормализация и батчирование
+### Dataset
+- **Size**: 292 MIDI files containing approximately 705,000 notes
+- **Preprocessing**:
+  1. MIDI file parsing using `pretty_midi`
+  2. Conversion to fixed sampling rate
+  3. Extraction of binary note activation matrices
+  4. Truncation/padding to fixed length (128 steps)
+  5. Normalization and batching for training
 
-## Эксперименты
+## Experiments
 
-### Исследуемые подходы
+### Investigated Approaches
 
-#### Оптимизаторы:
-- **Adam** - стандартный адаптивный метод оптимизации
-- **AdamW** - Adam с decay весов для улучшения регуляризации
-- **RMSprop** - адаптивный метод с учетом истории градиентов
+#### Optimizers:
+- **Adam** - standard adaptive optimization method
+- **AdamW** - Adam with weight decay for improved regularization
+- **RMSprop** - adaptive method considering gradient history
 
-#### Функции потерь:
-- **Binary Cross-Entropy (BCE)** - стандартная функция для бинарной классификации
-- **Focal Loss** - модификация BCE с фокусом на сложных примерах, помогает при дисбалансе классов
+#### Loss Functions:
+- **Binary Cross-Entropy (BCE)** - standard function for binary classification
+- **Focal Loss** - BCE modification focusing on hard examples, helpful for class imbalance
 
-### Цель экспериментов
-Сравнение эффективности различных комбинаций оптимизаторов и функций потерь для:
-1. Повышения стабильности обучения
-2. Ускорения сходимости модели
-3. Улучшения качества генерации музыки
-4. Преодоления проблемы разреженности данных
+### Experiment Goals
+Comparison of different optimizer and loss function combinations for:
+1. Improving training stability
+2. Accelerating model convergence
+3. Enhancing music generation quality
+4. Overcoming data sparsity issues
+
+## Technical Requirements
+
+- Python 3.7+
+- Libraries: pretty_midi, PyTorch/TensorFlow (depending on implementation), numpy, pandas
+
 
