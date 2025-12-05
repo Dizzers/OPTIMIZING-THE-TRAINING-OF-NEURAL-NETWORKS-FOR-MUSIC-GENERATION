@@ -226,9 +226,6 @@ def train_once(opt_name, train_loader, val_loader):
         "metrics_path": os.path.join(logger.log_dir, "metrics.csv")
     }
 
-# =========================================================
-# Генерация MIDI
-# =========================================================
 def save_prediction_as_midi(tensor, filename, min_note=MIN_NOTE):
     arr = torch.sigmoid(tensor).cpu().numpy()
     arr = arr > 0.5
@@ -266,9 +263,6 @@ def save_prediction_as_midi(tensor, filename, min_note=MIN_NOTE):
     pm.write(filename)
     print("Saved:", filename)
 
-# =========================================================
-# Визуализация и сохранение графиков
-# =========================================================
 def plot_and_save_metrics(df_all, metric_names):
     for metric in metric_names:
         plt.figure(figsize=(10,6))
@@ -313,7 +307,6 @@ def compare_bce_vs_focal(train_loader, val_loader):
         metrics_path = os.path.join(logger.log_dir, "metrics.csv")
         results.append((loss_name, metrics_path))
 
-    # === Построение графика BCE vs Focal ===
     plt.figure(figsize=(10,6))
 
     for name, csv_path in results:
@@ -332,9 +325,7 @@ def compare_bce_vs_focal(train_loader, val_loader):
     plt.close()
 
     print("График BCE_vs_Focal_F1.png сохранён!")
-# =========================================================
-# Основной эксперимент
-# =========================================================
+    
 def run_experiments(midi_dir):
     dataset = MIDIDataset(midi_dir)
     val_size = int(0.1 * len(dataset))
@@ -348,7 +339,6 @@ def run_experiments(midi_dir):
 
     summary = []
 
-    # Тренировка для всех оптимизаторов
     for opt in OPTIMIZERS_TO_TEST:
         print("\n============================")
         print("  Training:", opt)
@@ -356,31 +346,28 @@ def run_experiments(midi_dir):
         res = train_once(opt, train_loader, val_loader)
         summary.append(res)
 
-    # Сводная таблица по оптимизаторам
     df_summary = pd.DataFrame(summary)
     df_summary.to_csv(os.path.join(RESULTS_DIR, "summary.csv"), index=False)
     print("Сводная таблица по оптимизаторам:")
     print(df_summary)
 
-    # Сбор всех метрик
     df_all_list = []
     metric_list = ["train_loss","val_loss","train_acc","val_acc",
                    "train_f1","val_f1","train_precision","val_precision",
                    "train_recall","val_recall","train_perplexity","val_perplexity"]
 
     for opt in OPTIMIZERS_TO_TEST:
-        # Ищем metrics.csv в любой версии папки
         paths = glob.glob(f"logs/exp_{opt}/**/metrics.csv", recursive=True)
         if paths:
-            metrics_path = sorted(paths)[-1]  # берем последний CSV (актуальная версия)
+            metrics_path = sorted(paths)[-1] 
             df_metrics = pd.read_csv(metrics_path)
             df_metrics["optimizer"] = opt
             df_metrics["epoch"] = df_metrics.index + 1
-            # проверяем какие метрики реально есть в CSV
+
             existing_metrics = [m for m in metric_list if m in df_metrics.columns]
 
             if not existing_metrics:
-                print(f"⚠️ В metrics.csv для {opt} нет нужных метрик, пропускаю.")
+                print(f"В metrics.csv для {opt} нет метрик")
                 continue
 
             df_all_list.append(df_metrics[["epoch", "optimizer"] + existing_metrics])
@@ -393,7 +380,6 @@ def run_experiments(midi_dir):
     df_all.to_csv(os.path.join(RESULTS_DIR, "all_metrics.csv"), index=False)
     print("Все метрики сохранены в CSV: all_metrics.csv")
 
-    # Построение графиков
     for metric in metric_list:
         plt.figure(figsize=(10,6))
         sns.lineplot(data=df_all, x="epoch", y=metric, hue="optimizer", marker="o")
@@ -407,15 +393,12 @@ def run_experiments(midi_dir):
 
     print("Все графики сохранены в папку:", RESULTS_DIR)
     print("Все графики сохранены в папку:", RESULTS_DIR)
-    # Дополнительный эксперимент: BCE vs Focal Loss
+    
     compare_bce_vs_focal(train_loader, val_loader)
 
     return df_summary
 
-# =========================================================
-# Запуск
-# =========================================================
 if __name__ == "__main__":
-    DATASET_PATH = "archive"  # путь к папке с MIDI
+    DATASET_PATH = "archive" 
     df = run_experiments(DATASET_PATH)
     print("Эксперимент завершен, результаты сохранены в папку", RESULTS_DIR)
