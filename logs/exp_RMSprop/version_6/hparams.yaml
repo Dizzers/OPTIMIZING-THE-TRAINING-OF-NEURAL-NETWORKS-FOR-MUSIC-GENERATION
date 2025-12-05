@@ -1,0 +1,4 @@
+hidden: 128
+lr: 0.001
+n_notes: 85
+optimizer_name: RMSprop
