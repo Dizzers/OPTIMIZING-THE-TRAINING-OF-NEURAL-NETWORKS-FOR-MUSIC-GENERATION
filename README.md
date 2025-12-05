@@ -20,7 +20,7 @@ This project focuses on the task of music generation using neural networks. The 
 - **Data Type**: Binary matrix (0/1, where 1 indicates an active note)
 - **Sparsity**: Less than 2% active notes per time step
 
-### Dataset
+### Dataset(Archive)
 - **Size**: 292 MIDI files containing approximately 705,000 notes
 - **Preprocessing**:
   1. MIDI file parsing using `pretty_midi`
